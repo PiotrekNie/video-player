@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        #video_player_box {
+            background-color: #000;
+            margin: 0 auto;
+            max-height: 550px;
+            max-width: 550px;
+            width: 100%;
+        }
+
+        #video_player_box video {
+            min-width: 90%;
+            display: block;
+            max-width: 90%;
+            max-height: 80vh;
+            margin: 0 auto;
+        }
+
+        #video_controls_bar {
+            background-color: #333;
+            color: #ccc;
+            padding: 10px;
+        }
+
+        input#seekslider {
+            width: 180px;
+        }
+
+        input#volumeslider {
+            width: 80px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="video_player_box">
+        <video id="my_video" controlslist="nodownload" preload="auto" poster="poster.png" autoplay>
+        <source type="video/mp4" src="https://www.html5rocks.com/en/tutorials/video/basics/devstories.mp4">
+        <source type="video/webm" src="https://www.html5rocks.com/en/tutorials/video/basics/devstories.webm">
+        </video>
+        <div id="video_controls_bar">
+            <button id="playpausebtn">Play</button>
+            <input id="seekslider" type="range" min="0" max="100" value="0" step="1">
+            <span id="currenttimetext"></span> / <span id="durationtimetext"></span>
+            <button id="mutebtn">Mute</button>
+            <input id="volumeslider" type="range" min="0" max="100" value="100" step="1">
+        </div>
+    </div>
+
+    <script>
+        var vid, playbtn, seekslider, curtimetext, durtimetext, mutebtn, volumeslider;
+
+        function initializePlayer() {
+            // Set object references
+            vid = document.getElementById("my_video");
+            playbtn = document.getElementById("playpausebtn");
+            seekslider = document.getElementById("seekslider");
+            curtimetext = document.getElementById("currenttimetext");
+            durtimetext = document.getElementById("durationtimetext");
+            mutebtn = document.getElementById("mutebtn");
+            volumeslider = document.getElementById("volumeslider");
+            sessionVolume = sessionStorage.getItem('vol');
+            // Add event listener
+            playbtn.addEventListener('click', playPause, false);
+            seekslider.addEventListener('change', vidSeek, false);
+            vid.addEventListener('timeupdate', seektimeupdate, false);
+            mutebtn.addEventListener('click', vidmute, false);
+            volumeslider.addEventListener('change', setvolume, false);
+
+            volumeslider.value = sessionVolume;
+        }
+        window.onload = initializePlayer;
+
+        function playPause() {
+            if (vid.paused) {
+                vid.play();
+                playbtn.innerHTML = "Pause";
+            } else {
+                vid.pause();
+                playbtn.innerHTML = "Play";
+            }
+        }
+
+        function vidSeek() {
+            var seekto = vid.duration * (seekslider.value / 100);
+            vid.currentTime = seekto;
+        }
+
+        function seektimeupdate() {
+            var nt = vid.currentTime * (100 / vid.duration);
+            seekslider.value = nt;
+
+            var curmins = Math.floor(vid.currentTime / 60);
+            var cursecs = Math.floor(vid.currentTime - curmins * 60);
+            var durmins = Math.floor(vid.duration / 60);
+            var dursecs = Math.floor(vid.duration - durmins * 60);
+
+            if (cursecs < 10) {
+                cursecs = "0" + cursecs;
+            }
+            if (dursecs < 10) {
+                dursecs = "0" + dursecs;
+            }
+            if (curmins < 10) {
+                curmins = "0" + curmins;
+            }
+            if (durmins < 10) {
+                durmins = "0" + durmins;
+            }
+            curtimetext.innerHTML = curmins + ":" + cursecs;
+            durtimetext.innerHTML = durmins + ":" + dursecs;
+        }
+
+        function vidmute() {
+            currentVolume = sessionStorage.getItem('vol');
+            if (vid.muted) {
+                vid.muted = false;
+                mutebtn.innerHTML = "Mute";
+                volumeslider.value = currentVolume;
+                vid.volume = currentVolume / 100;
+
+            } else {
+                vid.muted = true;
+                mutebtn.innerHTML = "Unmute";
+                volumeslider.value = 0;
+            }
+        }
+
+        function setvolume() {
+            vid.volume = volumeslider.value / 100;
+
+            if (vid.volume > 0) {
+                sessionStorage.setItem('vol', volumeslider.value);
+                vid.muted = false;
+                mutebtn.innerHTML = "Mute";
+            } else {
+                vid.muted = true;
+                mutebtn.innerHTML = "Unmute";
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>
