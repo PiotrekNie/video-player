@@ -50,11 +50,12 @@
             <span id="currenttimetext"></span> / <span id="durationtimetext"></span>
             <button id="mutebtn">Mute</button>
             <input id="volumeslider" type="range" min="0" max="100" value="100" step="1">
+            <button id="fullscreenbtn">[ &nbsp; ]</button>
         </div>
     </div>
 
     <script>
-        var vid, playbtn, seekslider, curtimetext, durtimetext, mutebtn, volumeslider;
+        var vid, playbtn, seekslider, curtimetext, durtimetext, mutebtn, volumeslider, fullscreenbtn;
 
         function initializePlayer() {
             // Set object references
@@ -65,6 +66,7 @@
             durtimetext = document.getElementById("durationtimetext");
             mutebtn = document.getElementById("mutebtn");
             volumeslider = document.getElementById("volumeslider");
+            fullscreenbtn = document.getElementById("fullscreenbtn");
             sessionVolume = sessionStorage.getItem('vol');
             // Add event listener
             playbtn.addEventListener('click', playPause, false);
@@ -72,6 +74,7 @@
             vid.addEventListener('timeupdate', seektimeupdate, false);
             mutebtn.addEventListener('click', vidmute, false);
             volumeslider.addEventListener('change', setvolume, false);
+            fullscreenbtn.addEventListener('click', toggleFullScreen, false);
 
             volumeslider.value = sessionVolume;
         }
@@ -142,6 +145,16 @@
             } else {
                 vid.muted = true;
                 mutebtn.innerHTML = "Unmute";
+            }
+        }
+        
+        function toggleFullScreen() {
+            if(vid.requestFullScreen) {
+                vid.requestFullScreen();
+            } else if (vid.webkitRequestFullScreen) {
+                vid.webkit.RequestFullScreen();
+            } else if (vid.mozRequestFullScreen) {
+                vid.mozRequestFullScreen();
             }
         }
 
